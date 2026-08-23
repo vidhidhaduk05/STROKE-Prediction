@@ -108,6 +108,12 @@ The primary model estimates both conditional expectations within a single logist
 
 ```
 stroke-tool/
+├── index.html                # Tool page — interactive prediction interface
+├── paper.html                # Paper page — technical report with figures
+├── style.css                 # Application styling
+├── app.js                    # Client-side inference engine
+├── model.json                # Exported model coefficients & metadata
+├── figures/                  # Publication-quality figures (8 figures)
 ├── pipeline/
 │   ├── data_prep.py          # Data loading & feature engineering
 │   ├── iptw.py               # Propensity scoring & IPTW weights
@@ -118,18 +124,11 @@ stroke-tool/
 │   ├── export_model.py       # Model export to JSON
 │   ├── run_full_pipeline.py  # End-to-end pipeline runner
 │   └── utils.py              # Shared metrics & helper functions
-├── docs/
-│   ├── index.html            # Tool page — interactive prediction interface
-│   ├── paper.html            # Paper page — technical report with figures
-│   ├── style.css             # Application styling
-│   ├── app.js                # Client-side inference engine
-│   ├── model.json            # Exported model coefficients & metadata
-│   └── figures/              # Publication-quality figures (8 figures)
 ├── tests/
 │   └── test_pipeline.py      # Unit tests (18 tests)
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml            # GitHub Pages deployment workflow
+│       └── deploy.yml        # GitHub Pages deployment workflow
 ├── requirements.txt
 └── README.md
 ```
@@ -156,7 +155,7 @@ pip install -r requirements.txt
 python pipeline/run_full_pipeline.py
 ```
 
-This executes all stages sequentially: data preparation, IPTW, model training, validation, counterfactual estimation, T-learner benchmark, and model export. Outputs are saved to `docs/model.json` and `docs/figures/`.
+This executes all stages sequentially: data preparation, IPTW, model training, validation, counterfactual estimation, T-learner benchmark, and model export. Outputs are saved to `model.json` and `figures/`.
 
 ### Run individual stages
 
@@ -173,7 +172,6 @@ python pipeline/export_model.py     # Step 8: Export model to JSON
 ### Run the web application locally
 
 ```bash
-cd docs
 python -m http.server 8000
 ```
 
@@ -202,12 +200,11 @@ The test suite covers data preparation, feature engineering, IPTW computation, m
 
 ## Deployment
 
-The application is deployed as a static site via GitHub Pages:
+The application is deployed as a static site via GitHub Pages, served directly from the repository root:
 
 1. Push to the `main` branch
-2. The `.github/workflows/deploy.yml` workflow automatically deploys the `docs/` directory
-3. Enable Pages in **Repository Settings → Pages → Source: GitHub Actions**
-4. The site is live at `https://vidhidhaduk05.github.io/STROKE-Prediction/`
+2. Enable Pages in **Repository Settings → Pages → Source: Deploy from a branch → main / (root)**
+3. The site is live at `https://vidhidhaduk05.github.io/STROKE-Prediction/`
 
 No backend server is required. All inference runs client-side in the browser using the exported model JSON.
 

@@ -3,7 +3,6 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-18%20passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)]()
-[![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-blue.svg)](https://vidhidhaduk05.github.io/STROKE-Prediction/)
 
 **Live site:** [https://vidhidhaduk05.github.io/STROKE-Prediction/](https://vidhidhaduk05.github.io/STROKE-Prediction/)
 

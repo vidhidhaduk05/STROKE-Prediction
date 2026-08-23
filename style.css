@@ -641,6 +641,16 @@ body {
   margin-top: 0.3rem;
 }
 
+.site-footer .copyright {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  opacity: 0.5;
+  letter-spacing: 0.06em;
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .form-grid { grid-template-columns: 1fr 1fr; }
   .checkbox-grid { grid-template-columns: 1fr 1fr; }

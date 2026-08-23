@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroke Treatment Benefit Predictor — Paper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">Stroke Treatment Benefit Predictor</a>
+    <ul class="nav-links">
+        <li><a href="index.html">Tool</a></li>
+        <li><a href="paper.html" class="active">Paper</a></li>
+    </ul>
+</nav>
+
+<!-- Educational notice -->
+<div class="notice-bar">For educational purposes only</div>
+
+<!-- Paper -->
+<div class="paper-container">
+<article class="paper">
+
+    <h1 class="paper-title">Stroke Treatment Benefit Predictor: Counterfactual Treatment Estimation with the International Stroke Trial</h1>
+    <p class="paper-meta">
+        Counterfactual treatment estimation for individualized stroke treatment benefit prediction.<br>
+        Dataset: International Stroke Trial (IST), n = 19,435.<br>
+        Educational project. Not peer-reviewed. Not for clinical use.
+    </p>
+
+    <div class="paper-callout">
+        <strong>Note:</strong> This project applies counterfactual treatment estimation to predict
+        individualized treatment benefit in acute stroke, using the publicly available International
+        Stroke Trial dataset with aspirin vs. no aspirin as the treatment comparison.
+    </div>
+
+    <!-- Abstract -->
+    <h2>Abstract</h2>
+    <p>
+        We apply counterfactual treatment estimation to predict individualized treatment benefit in acute
+        stroke, using the International Stroke Trial (IST, n = 19,435). The pipeline combines Elastic Net
+        logistic regression with IPTW weighting, treatment&times;covariate interaction terms, and
+        counterfactual prediction to estimate individualized treatment benefit (CATE). An Elastic Net model
+        (C = 0.1, l1_ratio = 0.9) achieved internal CV AUC = 0.763 (95% CI: 0.737&ndash;0.787) and external
+        AUC = 0.767 on an Italian cohort. A T-learner benchmark showed strong concordance with the
+        interaction model (Pearson r = 0.943). The tool is deployed as a static, client-side web application
+        requiring no server infrastructure.
+    </p>
+
+    <!-- 1. Overview -->
+    <h2>1. Overview</h2>
+    <p>
+        Counterfactual treatment estimation predicts individualized treatment benefit in acute stroke
+        by modeling patient outcomes under both treatment and control scenarios. We apply this approach
+        to the publicly available IST, with aspirin vs. no aspirin as the treatment comparison and
+        6-month functional outcome (OCCODE 3&ndash;4 = independent) as the endpoint.
+    </p>
+
+    <!-- 2. Dataset -->
+    <h2>2. Dataset</h2>
+    <table class="paper-table">
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Source</td><td>Edinburgh DataShare</td></tr>
+        <tr><td>Total patients</td><td>19,435</td></tr>
+        <tr><td>Treatment</td><td>Aspirin (RXASP), 50/50 randomized</td></tr>
+        <tr><td>Outcome</td><td>Favorable = OCCODE 3&ndash;4 (independent at 6 months)</td></tr>
+        <tr><td>Development cohort</td><td>UK (n = 6,252; 20.8% favorable)</td></tr>
+        <tr><td>External cohort</td><td>Italy (n = 3,437; 42.7% favorable)</td></tr>
+    </table>
+    <p>
+        <em>Citation:</em> IST Collaborative Group. The International Stroke Trial (IST): a randomised trial
+        of aspirin, subcutaneous heparin, both, or neither among 19,435 patients with acute ischaemic stroke.
+        <em>Lancet</em> 1997;349:1569&ndash;81.
+    </p>
+
+    <!-- 3. Methods -->
+    <h2>3. Methods</h2>
+
+    <h3>3.1 Feature Engineering</h3>
+    <p>
+        Eleven binarized clinical features were derived from IST variables:
+        covariate schema:
+    </p>
+    <table class="paper-table">
+        <tr><th>Feature</th><th>IST variable</th><th>Threshold</th></tr>
+        <tr><td>Age &gt; 80</td><td>AGE</td><td>&gt; 80 years</td></tr>
+        <tr><td>Male sex</td><td>SEX</td><td>= M</td></tr>
+        <tr><td>Atrial fibrillation</td><td>RATRIAL</td><td>= Y</td></tr>
+        <tr><td>SBP &gt; 180</td><td>RSBP</td><td>&gt; 180 mmHg</td></tr>
+        <tr><td>Impaired consciousness</td><td>RCONSC</td><td>Drowsy or Unconscious</td></tr>
+        <tr><td>Delay &gt; 6h</td><td>RDELAY</td><td>&gt; 6 hours</td></tr>
+        <tr><td>TACS</td><td>STYPE</td><td>= TACS</td></tr>
+        <tr><td>&ge;3 deficits</td><td>RDEF1&ndash;RDEF8</td><td>count of Y &ge; 3 (NIHSS proxy)</td></tr>
+        <tr><td>Prior aspirin</td><td>RASP3</td><td>= Y</td></tr>
+        <tr><td>Infarct visible</td><td>RVISINF</td><td>= Y</td></tr>
+        <tr><td>Heparin allocated</td><td>RXHEP</td><td>L, M, or H (factorial co-treatment)</td></tr>
+    </table>
+    <p>
+        Missing values were imputed via MICE (Multiple Imputation by Chained Equations), fit on the
+        development cohort and applied to the external cohort. No variables exceeded 10% missingness.
+    </p>
+
+    <h3>3.2 Treatment &times; Covariate Interactions</h3>
+    <p>
+        Eleven interaction terms (treat_x_{feature}) were created by multiplying the treatment indicator
+        with each main effect, allowing the model to capture heterogeneous treatment effects. The full
+        feature matrix is: [11 main effects, treatment, 11 interactions] = 23 columns.
+    </p>
+
+    <h3>3.3 IPTW</h3>
+    <p>
+        Propensity scores were estimated via logistic regression of treatment on all 11 covariates.
+        Stabilized weights were computed and truncated at the 1st/99th percentiles. Since IST was
+        randomized, IPTW weights are near 1.0 (range 0.956&ndash;1.047) and all covariates were already
+        balanced (max unweighted SMD = 0.015). IPTW is included for methodological completeness.
+    </p>
+
+    <figure class="paper-figure">
+        <img src="figures/fig8_iptw_balance.png" alt="IPTW covariate balance">
+        <figcaption>Figure 1. Covariate balance before and after IPTW weighting. All 11 covariates
+        are well below the SMD = 0.1 threshold.</figcaption>
+    </figure>
+
+    <h3>3.4 Elastic Net Logistic Regression</h3>
+    <p>
+        The primary model is an Elastic Net penalized logistic regression with class_weight = "balanced",
+        tuned via grid search over C &isin; {0.01, 0.05, 0.1, 0.5, 1.0, 5.0} and l1_ratio &isin;
+        {0.1, 0.3, 0.5, 0.7, 0.9}. Best parameters: C = 0.1, l1_ratio = 0.9. Comparator models
+        (Decision Tree, SVC, XGBoost) were trained with the same CV protocol.
+    </p>
+
+    <figure class="paper-figure">
+        <img src="figures/fig6_coefficients.png" alt="Elastic Net coefficients">
+        <figcaption>Figure 2. Non-zero Elastic Net coefficients. Impaired consciousness, age &gt; 80,
+        and &ge;3 deficits are the strongest predictors of unfavorable outcome.</figcaption>
+    </figure>
+
+    <h3>3.5 Counterfactual Treatment Estimation</h3>
+    <p>
+        For each patient, the fitted model predicts P(favorable) under both treatment scenarios by
+        setting treatment = 1 or 0 and recomputing interaction terms. CATE = P(favorable | aspirin)
+        &minus; P(favorable | no aspirin). The Treatment Benefit Score (1&ndash;20) maps CATE to a clinical
+        scale using the 1st/99th percentile range. Treatment recommendation uses a &plusmn;5% threshold.
+    </p>
+
+    <h3>3.6 T-learner Benchmark</h3>
+    <p>
+        A T-learner meta-learner trains separate Elastic Net models on the treated and control subgroups
+        (main-effect features only), then computes CATE as the difference in predicted probabilities.
+        Concordance with the interaction model is assessed via Pearson correlation, Bland-Altman analysis,
+        and clinical recommendation agreement.
+    </p>
+
+    <h3>3.7 Validation</h3>
+    <p>
+        Internal: repeated stratified 5-fold CV (100 repeats = 500 folds) + 1000-iteration bootstrap
+        for 95% CIs. External: frozen model applied to the Italian cohort with bootstrap CIs and
+        calibration assessment.
+    </p>
+
+    <!-- 4. Results -->
+    <h2>4. Results</h2>
+
+    <h3>4.1 Model Performance</h3>
+    <table class="paper-table">
+        <tr><th>Metric</th><th>Internal CV (500 folds)</th><th>Bootstrap (1000 iter)</th><th>External (Italy)</th></tr>
+        <tr><td><strong>AUC</strong></td><td>0.763 (0.737&ndash;0.787)</td><td>0.767 (0.754&ndash;0.781)</td><td>0.767 (0.750&ndash;0.783)</td></tr>
+        <tr><td><strong>Brier</strong></td><td>0.203 (0.194&ndash;0.213)</td><td>0.202 (0.197&ndash;0.207)</td><td>0.197 (0.192&ndash;0.203)</td></tr>
+        <tr><td><strong>Sensitivity</strong></td><td>0.775 (0.719&ndash;0.823)</td><td>0.781 (0.759&ndash;0.802)</td><td>0.802 (0.782&ndash;0.822)</td></tr>
+        <tr><td><strong>Specificity</strong></td><td>0.623 (0.589&ndash;0.660)</td><td>0.625 (0.611&ndash;0.639)</td><td>0.605 (0.583&ndash;0.626)</td></tr>
+        <tr><td><strong>F1</strong></td><td>0.483 (0.458&ndash;0.508)</td><td>0.486 (0.467&ndash;0.505)</td><td>0.688 (0.669&ndash;0.705)</td></tr>
+    </table>
+
+    <figure class="paper-figure">
+        <img src="figures/fig1_roc_curves.png" alt="ROC curves">
+        <figcaption>Figure 3. ROC curves for internal (UK, AUC = 0.767) and external (Italy, AUC = 0.767)
+        cohorts.</figcaption>
+    </figure>
+
+    <figure class="paper-figure">
+        <img src="figures/fig2_calibration.png" alt="Calibration plot">
+        <figcaption>Figure 4. Calibration plot for the external (Italian) cohort. Brier score = 0.197.</figcaption>
+    </figure>
+
+    <h3>4.2 Model Comparison</h3>
+    <table class="paper-table">
+        <tr><th>Model</th><th>5-fold CV AUC</th></tr>
+        <tr><td><strong>Elastic Net (selected)</strong></td><td><strong>0.763</strong></td></tr>
+        <tr><td>Decision Tree</td><td>0.755</td></tr>
+        <tr><td>XGBoost</td><td>0.755</td></tr>
+        <tr><td>SVC</td><td>0.741</td></tr>
+    </table>
+
+    <h3>4.3 Key Coefficients</h3>
+    <table class="paper-table">
+        <tr><th>Feature</th><th>Coefficient</th><th>Odds Ratio</th><th>Direction</th></tr>
+        <tr><td>Impaired consciousness</td><td>&minus;1.376</td><td>0.253</td><td>&darr; Favorable</td></tr>
+        <tr><td>Age &gt; 80</td><td>&minus;0.885</td><td>0.413</td><td>&darr; Favorable</td></tr>
+        <tr><td>&ge;3 deficits</td><td>&minus;0.729</td><td>0.483</td><td>&darr; Favorable</td></tr>
+        <tr><td>TACS</td><td>&minus;0.663</td><td>0.515</td><td>&darr; Favorable</td></tr>
+        <tr><td>Male sex</td><td>+0.447</td><td>1.563</td><td>&uarr; Favorable</td></tr>
+        <tr><td>Treatment (aspirin)</td><td>+0.073</td><td>1.076</td><td>&uarr; Favorable</td></tr>
+    </table>
+
+    <h3>4.4 Counterfactual Estimation</h3>
+    <table class="paper-table">
+        <tr><th>Statistic</th><th>Value</th></tr>
+        <tr><td>CATE mean</td><td>&minus;0.011 (&minus;1.1%)</td></tr>
+        <tr><td>CATE range</td><td>[&minus;0.054, +0.045]</td></tr>
+        <tr><td>Treatment Benefit Score mean</td><td>9.8 / 20</td></tr>
+        <tr><td>No clear benefit</td><td>6,058 (96.9%)</td></tr>
+        <tr><td>No treatment recommended</td><td>194 (3.1%)</td></tr>
+        <tr><td>Treatment recommended</td><td>0 (0%)</td></tr>
+    </table>
+
+    <figure class="paper-figure">
+        <img src="figures/fig3_cate_distribution.png" alt="CATE distribution">
+        <figcaption>Figure 5. Left: Counterfactual outcome probability densities under aspirin and no-aspirin.
+        Right: CATE distribution with &plusmn;5% recommendation thresholds.</figcaption>
+    </figure>
+
+    <figure class="paper-figure">
+        <img src="figures/fig7_benefit_scores.png" alt="Treatment Benefit Score distribution">
+        <figcaption>Figure 6. Treatment Benefit Score (1&ndash;20) distribution by recommendation category.</figcaption>
+    </figure>
+
+    <h3>4.5 T-learner Benchmark</h3>
+    <table class="paper-table">
+        <tr><th>Metric</th><th>Result</th></tr>
+        <tr><td>Pearson r</td><td>0.943</td></tr>
+        <tr><td>Bland-Altman mean diff</td><td>&minus;0.0005</td></tr>
+        <tr><td>95% LoA</td><td>&plusmn;0.037</td></tr>
+        <tr><td>Recommendation agreement</td><td>77.7%</td></tr>
+    </table>
+
+    <figure class="paper-figure">
+        <img src="figures/fig4_bland_altman.png" alt="Bland-Altman plot">
+        <figcaption>Figure 7. Bland-Altman plot comparing interaction model CATE vs. T-learner CATE.
+        Mean difference = &minus;0.0005, 95% limits of agreement = &plusmn;0.037.</figcaption>
+    </figure>
+
+    <figure class="paper-figure">
+        <img src="figures/fig5_cate_scatter.png" alt="CATE scatter">
+        <figcaption>Figure 8. CATE correlation between interaction model and T-learner (r = 0.943).</figcaption>
+    </figure>
+
+    <!-- 5. Limitations -->
+    <h2>5. Limitations</h2>
+    <ol>
+        <li><strong>Aspirin effect is modest.</strong> The treatment OR (1.076) reflects a small
+        average treatment benefit. CATE values are small (&plusmn;5%) and
+        96.9% of patients fall within the "no clear benefit" threshold. This is clinically realistic
+        but limits the tool's discriminative utility for treatment selection.</li>
+        <li><strong>IST is randomized.</strong> IPTW weights are near 1.0, so IPTW serves as a
+        methodological demonstration rather than correcting real confounding by indication.</li>
+        <li><strong>Binarized features.</strong> Continuous variables are binarized at clinical thresholds,
+        sacrificing granularity for interpretability.</li>
+        <li><strong>Single external cohort.</strong> External validation uses only the Italian subset of IST.
+        Additional cohorts from different healthcare systems would strengthen generalizability.</li>
+        <li><strong>Educational tool only.</strong> This project is for learning purposes and must not be
+        used for clinical decision-making.</li>
+    </ol>
+
+    <!-- 6. Web Application -->
+    <h2>6. Web Application</h2>
+    <p>
+        The static web app provides a client-side prediction interface. All computation occurs in JavaScript
+        using exported model coefficients &mdash; no server, no API calls, no patient data transmitted.
+        Deployed via GitHub Pages.
+    </p>
+
+    <!-- References -->
+    <h2>References</h2>
+    <ol>
+        <li>IST Collaborative Group (1997). The International Stroke Trial (IST): a randomised trial of
+        aspirin, subcutaneous heparin, both, or neither among 19,435 patients with acute ischaemic stroke.
+        <em>Lancet</em> 349:1569&ndash;81.</li>
+        <li>Senn et al. (2024). International Stroke Trial data. Edinburgh DataShare.
+        https://datashare.ed.ac.uk/handle/10283/124</li>
+    </ol>
+
+    <div class="paper-footer">
+        <p>All code is available on
+        <a href="https://github.com/vidhidhaduk05/STROKE-Prediction">GitHub</a>.</p>
+        <p class="disclaimer">For educational purposes only. Not for clinical decision-making.</p>
+    </div>
+
+</article>
+</div>
+
+</body>
+</html>

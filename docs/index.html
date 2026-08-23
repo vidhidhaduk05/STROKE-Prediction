@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroke Treatment Benefit Predictor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="nav-brand">Stroke Treatment Benefit Predictor</a>
+    <ul class="nav-links">
+        <li><a href="index.html" class="active">Tool</a></li>
+        <li><a href="paper.html">Paper</a></li>
+    </ul>
+</nav>
+
+<div class="notice-bar">
+    For educational and demonstration purposes only. Not for clinical decision-making.
+</div>
+
+<div class="tool-container">
+
+    <!-- Patient input card -->
+    <div class="tool-card">
+        <h2>Patient Characteristics</h2>
+        <p class="hint">Sample patient data is pre-filled below. Adjust the values and click Calculate to estimate treatment benefit.</p>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="age">Age (years)</label>
+                <input type="number" id="age" min="18" max="120" value="72">
+            </div>
+            <div class="form-group">
+                <label for="sex">Sex</label>
+                <select id="sex">
+                    <option value="M" selected>Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sbp">Systolic BP (mmHg)</label>
+                <input type="number" id="sbp" min="60" max="300" value="165">
+            </div>
+            <div class="form-group">
+                <label for="delay">Onset-to-randomization delay (hours)</label>
+                <input type="number" id="delay" min="0" max="48" step="0.5" value="5">
+            </div>
+            <div class="form-group">
+                <label for="consc">Consciousness level</label>
+                <select id="consc">
+                    <option value="F" selected>Alert</option>
+                    <option value="D">Drowsy</option>
+                    <option value="U">Unconscious</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="stype">Stroke subtype (OCSP)</label>
+                <select id="stype">
+                    <option value="PACS" selected>PACS — Partial anterior</option>
+                    <option value="TACS">TACS — Total anterior</option>
+                    <option value="LACS">LACS — Lacunar</option>
+                    <option value="POCS">POCS — Posterior</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="afib">Atrial fibrillation</label>
+                <select id="afib">
+                    <option value="N" selected>No</option>
+                    <option value="Y">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="prior_asp">Prior aspirin use</label>
+                <select id="prior_asp">
+                    <option value="N" selected>No</option>
+                    <option value="Y">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="infarct">Infarct visible on CT</label>
+                <select id="infarct">
+                    <option value="N" selected>No</option>
+                    <option value="Y">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="heparin">Heparin allocated</label>
+                <select id="heparin">
+                    <option value="N" selected>No</option>
+                    <option value="Y">Yes</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section-label">Stroke deficits (check all present)</div>
+        <div class="checkbox-grid">
+            <label><input type="checkbox" id="def_face" checked> Face</label>
+            <label><input type="checkbox" id="def_arm" checked> Arm/Hand</label>
+            <label><input type="checkbox" id="def_leg" > Leg/Foot</label>
+            <label><input type="checkbox" id="def_dysph" checked> Dysphasia</label>
+            <label><input type="checkbox" id="def_hemian" > Hemianopia</label>
+            <label><input type="checkbox" id="def_vspatial" > Visuospatial</label>
+            <label><input type="checkbox" id="def_brainstem" > Brainstem</label>
+            <label><input type="checkbox" id="def_other" > Other</label>
+        </div>
+
+        <div class="btn-row">
+            <button class="calc-btn" onclick="calculate()">Calculate Treatment Benefit</button>
+            <button class="sample-btn" onclick="loadSample()">Load Sample Patient</button>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" style="display:none;">
+
+        <div class="tool-card">
+            <h2>Predicted Outcome Probabilities</h2>
+            <div class="prob-bars">
+                <div class="prob-row">
+                    <div class="prob-label">Favorable outcome — No aspirin</div>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar control" id="bar-control"></div>
+                        <div class="prob-value" id="val-control"></div>
+                    </div>
+                </div>
+                <div class="prob-row">
+                    <div class="prob-label">Favorable outcome — With aspirin</div>
+                    <div class="prob-bar-container">
+                        <div class="prob-bar treated" id="bar-treated"></div>
+                        <div class="prob-value" id="val-treated"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tool-card">
+            <h2>Treatment Benefit Estimate</h2>
+            <div class="metric-row">
+                <span class="metric-label">Individualized treatment effect (CATE)</span>
+                <span class="metric-value" id="cate-val"></span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Absolute probability difference</span>
+                <span class="metric-value" id="diff-val"></span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Treatment Benefit Score (1–20)</span>
+                <span class="metric-value" id="score-val"></span>
+            </div>
+        </div>
+
+        <div class="tool-card" id="rec-card">
+            <div class="recommendation">
+                <h3>Clinical Recommendation</h3>
+                <p id="rec-text"></p>
+                <p class="rec-detail" id="rec-detail"></p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="site-footer">
+    <p>Model trained on the International Stroke Trial (IST, n = 19,435). Elastic Net logistic regression with IPTW and T-learner CATE estimation.</p>
+    <p class="disclaimer">For educational and demonstration purposes only. Not for clinical decision-making.</p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

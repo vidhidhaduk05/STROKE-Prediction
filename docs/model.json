@@ -1,0 +1,154 @@
+{
+  "model_type": "Elastic Net Logistic Regression",
+  "feature_names": [
+    "age_gt80",
+    "male",
+    "afib",
+    "sbp_gt180",
+    "impaired_conscious",
+    "delay_gt6h",
+    "tacs",
+    "deficit_ge3",
+    "prior_aspirin",
+    "infarct_visible",
+    "heparin_allocated",
+    "treatment",
+    "treat_x_age_gt80",
+    "treat_x_male",
+    "treat_x_afib",
+    "treat_x_sbp_gt180",
+    "treat_x_impaired_conscious",
+    "treat_x_delay_gt6h",
+    "treat_x_tacs",
+    "treat_x_deficit_ge3",
+    "treat_x_prior_aspirin",
+    "treat_x_infarct_visible",
+    "treat_x_heparin_allocated"
+  ],
+  "coefficients": [
+    -0.8848565062367432,
+    0.44681287431238137,
+    -0.05600907783432587,
+    0.0,
+    -1.3759321781775824,
+    0.06292051780292912,
+    -0.6627228961475312,
+    -0.7286124668085704,
+    -0.18646986717736797,
+    0.0,
+    -0.029533464570685126,
+    0.07314092713904685,
+    0.0,
+    0.0,
+    0.0,
+    0.10656124133884207,
+    -0.20338630376747333,
+    0.0,
+    -0.15554732991201428,
+    -0.11271749804237233,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "intercept": 0.8007232282173163,
+  "main_features": [
+    "age_gt80",
+    "male",
+    "afib",
+    "sbp_gt180",
+    "impaired_conscious",
+    "delay_gt6h",
+    "tacs",
+    "deficit_ge3",
+    "prior_aspirin",
+    "infarct_visible",
+    "heparin_allocated"
+  ],
+  "interaction_features": [
+    "treat_x_age_gt80",
+    "treat_x_male",
+    "treat_x_afib",
+    "treat_x_sbp_gt180",
+    "treat_x_impaired_conscious",
+    "treat_x_delay_gt6h",
+    "treat_x_tacs",
+    "treat_x_deficit_ge3",
+    "treat_x_prior_aspirin",
+    "treat_x_infarct_visible",
+    "treat_x_heparin_allocated"
+  ],
+  "thresholds": {
+    "age": 80,
+    "delay": 6,
+    "sbp": 180,
+    "deficit_count": 3
+  },
+  "feature_metadata": [
+    {
+      "name": "age_gt80",
+      "label": "Age > 80 years"
+    },
+    {
+      "name": "male",
+      "label": "Male sex"
+    },
+    {
+      "name": "afib",
+      "label": "Atrial fibrillation"
+    },
+    {
+      "name": "sbp_gt180",
+      "label": "Systolic BP > 180 mmHg"
+    },
+    {
+      "name": "impaired_conscious",
+      "label": "Impaired consciousness (drowsy/unconscious)"
+    },
+    {
+      "name": "delay_gt6h",
+      "label": "Delay from stroke onset > 6 hours"
+    },
+    {
+      "name": "tacs",
+      "label": "Total anterior circulation syndrome"
+    },
+    {
+      "name": "deficit_ge3",
+      "label": ">= 3 neurological deficits (NIHSS proxy)"
+    },
+    {
+      "name": "prior_aspirin",
+      "label": "Prior aspirin use (within 3 days)"
+    },
+    {
+      "name": "infarct_visible",
+      "label": "Infarct visible on CT"
+    },
+    {
+      "name": "heparin_allocated",
+      "label": "Heparin allocated (co-treatment)"
+    }
+  ],
+  "model_params": {
+    "C": 0.1,
+    "l1_ratio": 0.9
+  },
+  "benefit_score": {
+    "cate_p1": -0.05370622563149002,
+    "cate_p99": 0.03910291442390362,
+    "min_score": 1,
+    "max_score": 20
+  },
+  "recommendation_threshold": 0.05,
+  "validation": {
+    "internal_auc": 0.7628835813541768,
+    "internal_auc_ci": [
+      0.737247231934732,
+      0.7873279746447632
+    ],
+    "external_auc": 0.7665989729661262
+  },
+  "dataset": "International Stroke Trial (IST), n=19,435",
+  "methodology": "Counterfactual treatment estimation (Elastic Net + IPTW)",
+  "disclaimer": "Educational tool only. Not for clinical use."
+}

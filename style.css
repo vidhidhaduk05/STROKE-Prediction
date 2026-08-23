@@ -234,41 +234,176 @@ body {
 
 .sample-btn:hover { background: var(--paper-dark); }
 
-/* ---- Results ---- */
-.prob-bars { margin-top: 0.6rem; }
-.prob-row { display: flex; align-items: center; margin-bottom: 0.8rem; }
-
-.prob-label {
-  width: 230px;
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ink);
+/* ---- Results: gauges ---- */
+.gauge-row {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
 }
 
-.prob-bar-container {
-  flex: 1;
-  height: 26px;
-  background: var(--paper-dark);
+.gauge-block { text-align: center; width: 240px; }
+.gauge { width: 100%; height: auto; }
+
+.gauge-pct {
+  font-family: var(--font-head);
+  font-size: 34px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.gauge-name {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin-top: 0.2rem;
+}
+
+.gauge-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+}
+
+.gauge-badge {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink-light);
   border: 1px solid var(--rule-light);
+  padding: 0.1rem 0.5rem;
+  margin-top: 0.3rem;
+  background: var(--paper);
+}
+
+/* ---- Results: score cards ---- */
+.score-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
+
+.score-card {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  text-align: center;
+  padding: 1rem 1.2rem;
+  border: 2px solid;
+}
+
+.score-treated { border-color: #2f7d32; background: #eef6ee; }
+.score-control { border-color: #a0352c; background: #f9eeee; }
+
+.score-name {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.score-treated .score-name { color: #2f7d32; }
+.score-control .score-name { color: #a0352c; }
+
+.score-num {
+  font-family: var(--font-head);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.score-treated .score-num { color: #2f7d32; }
+.score-control .score-num { color: #a0352c; }
+
+.score-num { font-variant-numeric: tabular-nums; }
+
+.advantage-banner {
+  margin: 1rem auto 0;
+  max-width: 480px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--rule-light);
+}
+
+.adv-positive { background: #eef6ee; color: #2f7d32; border-color: #2f7d32; }
+.adv-negative { background: #f9eeee; color: #a0352c; border-color: #a0352c; }
+.adv-neutral { background: var(--paper); color: var(--ink-light); }
+
+/* ---- Results: CATE zone track ---- */
+.cate-container { margin: 1rem 0 0.6rem; }
+
+.cate-track {
   position: relative;
+  height: 44px;
+  border: 1px solid var(--rule);
+  display: flex;
   overflow: hidden;
 }
 
-.prob-bar { height: 100%; transition: width 0.5s ease; }
-.prob-bar.treated { background: var(--ink); }
-.prob-bar.control { background: var(--ink-faint); }
+.cate-zone { height: 100%; }
+.zone-control { width: 25%; background: #f3d9d5; }
+.zone-neutral { width: 50%; background: var(--paper); }
+.zone-treat { width: 25%; background: #d9ead9; }
 
-.prob-value {
+.cate-thresh {
   position: absolute;
-  right: 8px;
-  top: 4px;
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--white);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.55);
+  top: 0; bottom: 0;
+  width: 0;
+  border-left: 2px dashed #b26a00;
 }
+
+.cate-marker {
+  position: absolute;
+  top: -1px; bottom: -1px;
+  width: 4px;
+  background: var(--ink);
+  transform: translateX(-2px);
+  transition: left 0.5s ease;
+}
+
+.cate-marker::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--ink);
+}
+
+.cate-axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  margin-top: 0.3rem;
+}
+
+.cate-zone-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.zl-control { color: #a0352c; }
+.zl-treat { color: #2f7d32; }
 
 .metric-row {
   display: flex;

@@ -170,6 +170,21 @@ function getRecommendation(cate) {
 }
 
 // ---- Results display ----
+const GAUGE_LEN = Math.PI * 80; // semicircle arc length, r = 80
+
+function setGauge(arcId, pctId, prob, color) {
+    const arc = document.getElementById(arcId);
+    const len = Math.max(0, Math.min(1, prob)) * GAUGE_LEN;
+    arc.setAttribute('stroke-dasharray', len.toFixed(1) + ' ' + GAUGE_LEN.toFixed(1));
+    arc.setAttribute('stroke', color);
+    document.getElementById(pctId).textContent = (prob * 100).toFixed(0) + '%';
+}
+
+function probToScore(prob) {
+    // Map predicted probability (0-1) to a 1-20 clinical score
+    return Math.max(1, Math.min(20, Math.round(1 + prob * 19)));
+}
+
 function displayResults(probTreated, probControl) {
     const cate = probTreated - probControl;
     const benefitScore = computeBenefitScore(cate);
@@ -178,11 +193,33 @@ function displayResults(probTreated, probControl) {
     // Show results panel
     document.getElementById('results').style.display = 'block';
 
-    // Probability bars
-    document.getElementById('bar-treated').style.width = (probTreated * 100) + '%';
-    document.getElementById('bar-control').style.width = (probControl * 100) + '%';
-    document.getElementById('val-treated').textContent = (probTreated * 100).toFixed(1) + '%';
-    document.getElementById('val-control').textContent = (probControl * 100).toFixed(1) + '%';
+    // Gauges
+    setGauge('gauge-arc-treated', 'gauge-pct-treated', probTreated, '#2f7d32');
+    setGauge('gauge-arc-control', 'gauge-pct-control', probControl, '#a0352c');
+
+    // Score cards (probability mapped to 1-20)
+    const scoreTreated = probToScore(probTreated);
+    const scoreControl = probToScore(probControl);
+    document.getElementById('score-treated-val').textContent = scoreTreated + ' /20';
+    document.getElementById('score-control-val').textContent = scoreControl + ' /20';
+
+    // Advantage banner
+    const diff = scoreTreated - scoreControl;
+    const banner = document.getElementById('advantage-banner');
+    if (diff > 0) {
+        banner.textContent = 'Aspirin advantage: +' + diff + ' points';
+        banner.className = 'advantage-banner adv-positive';
+    } else if (diff < 0) {
+        banner.textContent = 'No-aspirin advantage: +' + (-diff) + ' points';
+        banner.className = 'advantage-banner adv-negative';
+    } else {
+        banner.textContent = 'No score difference between arms';
+        banner.className = 'advantage-banner adv-neutral';
+    }
+
+    // CATE marker on zone track (track spans -10% to +10%)
+    const trackPos = Math.max(0, Math.min(100, ((cate + 0.10) / 0.20) * 100));
+    document.getElementById('cate-marker').style.left = trackPos + '%';
 
     // Metrics
     const cateSign = cate >= 0 ? '+' : '';

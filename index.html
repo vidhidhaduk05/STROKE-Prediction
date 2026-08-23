@@ -120,27 +120,65 @@
     <div id="results" style="display:none;">
 
         <div class="tool-card">
-            <h2>Predicted Outcome Probabilities</h2>
-            <div class="prob-bars">
-                <div class="prob-row">
-                    <div class="prob-label">Favorable outcome — No aspirin</div>
-                    <div class="prob-bar-container">
-                        <div class="prob-bar control" id="bar-control"></div>
-                        <div class="prob-value" id="val-control"></div>
-                    </div>
+            <h2>Predicted Probabilities</h2>
+            <div class="gauge-row">
+                <div class="gauge-block">
+                    <svg viewBox="0 0 200 118" class="gauge">
+                        <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#e4e0d5" stroke-width="20"/>
+                        <path id="gauge-arc-control" d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#8a8a8a" stroke-width="20" stroke-dasharray="0 251.4"/>
+                        <text x="100" y="98" text-anchor="middle" class="gauge-pct" id="gauge-pct-control">&mdash;</text>
+                    </svg>
+                    <div class="gauge-name">No Aspirin</div>
+                    <div class="gauge-sub">Favorable Outcome</div>
+                    <div class="gauge-badge">OCCODE 3&ndash;4 at 6 months</div>
                 </div>
-                <div class="prob-row">
-                    <div class="prob-label">Favorable outcome — With aspirin</div>
-                    <div class="prob-bar-container">
-                        <div class="prob-bar treated" id="bar-treated"></div>
-                        <div class="prob-value" id="val-treated"></div>
-                    </div>
+                <div class="gauge-block">
+                    <svg viewBox="0 0 200 118" class="gauge">
+                        <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#e4e0d5" stroke-width="20"/>
+                        <path id="gauge-arc-treated" d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#2f7d32" stroke-width="20" stroke-dasharray="0 251.4"/>
+                        <text x="100" y="98" text-anchor="middle" class="gauge-pct" id="gauge-pct-treated">&mdash;</text>
+                    </svg>
+                    <div class="gauge-name">With Aspirin</div>
+                    <div class="gauge-sub">Favorable Outcome</div>
+                    <div class="gauge-badge">OCCODE 3&ndash;4 at 6 months</div>
                 </div>
             </div>
         </div>
 
         <div class="tool-card">
-            <h2>Treatment Benefit Estimate</h2>
+            <h2>Treatment Benefit Score (1&ndash;20)</h2>
+            <div class="score-row">
+                <div class="score-card score-treated">
+                    <div class="score-name">Aspirin Score</div>
+                    <div class="score-num" id="score-treated-val">&mdash;</div>
+                </div>
+                <div class="score-card score-control">
+                    <div class="score-name">No-Aspirin Score</div>
+                    <div class="score-num" id="score-control-val">&mdash;</div>
+                </div>
+            </div>
+            <div class="advantage-banner" id="advantage-banner"></div>
+        </div>
+
+        <div class="tool-card">
+            <h2>Treatment Effect Analysis (CATE)</h2>
+            <div class="cate-container">
+                <div class="cate-track">
+                    <div class="cate-zone zone-control"></div>
+                    <div class="cate-zone zone-neutral"></div>
+                    <div class="cate-zone zone-treat"></div>
+                    <div class="cate-thresh" style="left:25%"></div>
+                    <div class="cate-thresh" style="left:75%"></div>
+                    <div class="cate-marker" id="cate-marker" style="left:50%"></div>
+                </div>
+                <div class="cate-axis">
+                    <span>&minus;10%</span><span>&minus;5%</span><span>0</span><span>+5%</span><span>+10%</span>
+                </div>
+                <div class="cate-zone-labels">
+                    <span class="zl-control">No-aspirin preferred zone</span>
+                    <span class="zl-treat">Aspirin recommended zone</span>
+                </div>
+            </div>
             <div class="metric-row">
                 <span class="metric-label">Individualized treatment effect (CATE)</span>
                 <span class="metric-value" id="cate-val"></span>
@@ -150,7 +188,7 @@
                 <span class="metric-value" id="diff-val"></span>
             </div>
             <div class="metric-row">
-                <span class="metric-label">Treatment Benefit Score (1–20)</span>
+                <span class="metric-label">Treatment Benefit Score (CATE-based, 1&ndash;20)</span>
                 <span class="metric-value" id="score-val"></span>
             </div>
         </div>

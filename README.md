@@ -34,7 +34,7 @@ The tool addresses a core challenge in precision medicine: moving beyond average
 1. Engineers 11 binarized clinical features from raw trial variables
 2. Estimates propensity scores and applies stabilized IPTW weights
 3. Trains an Elastic Net logistic regression with treatment × covariate interactions
-4. Validates internally (500-fold cross-validation, 1000-iteration bootstrap) and externally (Italian cohort)
+4. Validates internally (repeated 5-fold cross-validation, 500 folds, 1000-iteration bootstrap) and externally (Italian cohort)
 5. Computes conditional average treatment effects (CATE) via counterfactual prediction
 6. Benchmarks CATE estimates against a T-learner meta-learner
 7. Exports the trained model to JSON for client-side inference in the browser
@@ -60,7 +60,7 @@ The primary model estimates both conditional expectations within a single logist
 | Data preparation | `pipeline/data_prep.py` | IST loading, feature engineering, MICE imputation, interaction terms |
 | Propensity weighting | `pipeline/iptw.py` | Propensity score estimation, stabilized IPTW weights, SMD balance check |
 | Model training | `pipeline/modeling.py` | Elastic Net logistic regression, comparator models, forward feature selection |
-| Validation | `pipeline/validation.py` | 500-fold internal CV, 1000-iteration bootstrap, frozen external validation |
+| Validation | `pipeline/validation.py` | Repeated 5-fold internal CV (500 folds), 1000-iteration bootstrap, frozen external validation |
 | Counterfactual estimation | `pipeline/counterfactual.py` | Dual-arm prediction, CATE computation, Treatment Benefit Score (1–20) |
 | T-learner benchmark | `pipeline/tlearner.py` | Separate-arm models, Pearson correlation, Bland-Altman analysis |
 | Model export | `pipeline/export_model.py` | Serialization to JSON for browser deployment |

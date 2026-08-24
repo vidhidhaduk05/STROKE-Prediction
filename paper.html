@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Technical paper: counterfactual treatment estimation with Elastic Net logistic regression, IPTW, and T-learner CATE on the International Stroke Trial (n=19,435). Educational project by Vidhi Dhaduk.">
     <title>Stroke Treatment Benefit Predictor — Paper</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -100,7 +101,6 @@
     <h3>3.1 Feature Engineering</h3>
     <p>
         Eleven binarized clinical features were derived from IST variables:
-        covariate schema:
     </p>
     <table class="paper-table">
         <tr><th>Feature</th><th>IST variable</th><th>Threshold</th></tr>
@@ -123,7 +123,7 @@
 
     <h3>3.2 Treatment &times; Covariate Interactions</h3>
     <p>
-        Eleven interaction terms (treat_x_{feature}) were created by multiplying the treatment indicator
+        Eleven interaction terms (treat_x_*) were created by multiplying the treatment indicator
         with each main effect, allowing the model to capture heterogeneous treatment effects. The full
         feature matrix is: [11 main effects, treatment, 11 interactions] = 23 columns.
     </p>
@@ -194,8 +194,9 @@
 
     <figure class="paper-figure">
         <img src="figures/fig1_roc_curves.png" alt="ROC curves">
-        <figcaption>Figure 3. ROC curves for internal (UK, AUC = 0.767) and external (Italy, AUC = 0.767)
-        cohorts.</figcaption>
+        <figcaption>Figure 3. ROC curves for the development (UK, apparent AUC = 0.767) and external
+        (Italy, AUC = 0.767) cohorts. The apparent AUC is computed in-sample on the development set;
+        cross-validated internal AUC = 0.763.</figcaption>
     </figure>
 
     <figure class="paper-figure">
@@ -269,8 +270,8 @@
     <h2>5. Limitations</h2>
     <ol>
         <li><strong>Aspirin effect is modest.</strong> The treatment OR (1.076) reflects a small
-        average treatment benefit. CATE values are small (&plusmn;5%) and
-        96.9% of patients fall within the "no clear benefit" threshold. This is clinically realistic
+        average treatment benefit. CATE values are small (range &minus;5.4% to +4.5%) and
+        96.9% of patients fall within the &plusmn;5% "no clear benefit" threshold. This is clinically realistic
         but limits the tool's discriminative utility for treatment selection.</li>
         <li><strong>IST is randomized.</strong> IPTW weights are near 1.0, so IPTW serves as a
         methodological demonstration rather than correcting real confounding by indication.</li>

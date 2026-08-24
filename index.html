@@ -146,15 +146,16 @@
         </div>
 
         <div class="tool-card">
-            <h2>Treatment Benefit Score (1&ndash;20)</h2>
+            <h2>Predicted Outcome Score (1&ndash;20)</h2>
+            <p class="score-caption">Each arm&rsquo;s predicted favorable-outcome likelihood, rescaled to a 1&ndash;20 point score. This is a per-arm outcome score &mdash; not the treatment benefit. The benefit is the <em>difference</em> between the two arms, shown below.</p>
             <div class="score-row">
-                <div class="score-card score-treated">
-                    <div class="score-name">Aspirin Score</div>
-                    <div class="score-num" id="score-treated-val">&mdash;</div>
-                </div>
-                <div class="score-card score-control">
-                    <div class="score-name">No-Aspirin Score</div>
+                <div class="score-card" id="card-control">
+                    <div class="score-name">No Aspirin</div>
                     <div class="score-num" id="score-control-val">&mdash;</div>
+                </div>
+                <div class="score-card" id="card-treated">
+                    <div class="score-name">With Aspirin</div>
+                    <div class="score-num" id="score-treated-val">&mdash;</div>
                 </div>
             </div>
             <div class="advantage-banner" id="advantage-banner"></div>

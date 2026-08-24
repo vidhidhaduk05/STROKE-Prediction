@@ -193,27 +193,42 @@ function displayResults(probTreated, probControl) {
     // Show results panel
     document.getElementById('results').style.display = 'block';
 
+    // Honest coloring: green = meaningfully better arm, red = worse arm,
+    // neutral grey when the difference is within the +/-5% benefit threshold.
+    const threshold = MODEL.recommendation_threshold;
+    const GREEN = '#2f7d32', RED = '#a0352c', NEUTRAL = '#6b6b6b';
+    let colTreated, colControl, stateTreated, stateControl;
+    if (cate > threshold) {
+        colTreated = GREEN; colControl = RED;
+        stateTreated = 'card-good'; stateControl = 'card-bad';
+    } else if (cate < -threshold) {
+        colTreated = RED; colControl = GREEN;
+        stateTreated = 'card-bad'; stateControl = 'card-good';
+    } else {
+        colTreated = NEUTRAL; colControl = NEUTRAL;
+        stateTreated = 'card-neutral'; stateControl = 'card-neutral';
+    }
+
     // Gauges
-    setGauge('gauge-arc-treated', 'gauge-pct-treated', probTreated, '#2f7d32');
-    setGauge('gauge-arc-control', 'gauge-pct-control', probControl, '#a0352c');
+    setGauge('gauge-arc-treated', 'gauge-pct-treated', probTreated, colTreated);
+    setGauge('gauge-arc-control', 'gauge-pct-control', probControl, colControl);
 
-    // Score cards (probability mapped to 1-20)
-    const scoreTreated = probToScore(probTreated);
-    const scoreControl = probToScore(probControl);
-    document.getElementById('score-treated-val').textContent = scoreTreated + ' /20';
-    document.getElementById('score-control-val').textContent = scoreControl + ' /20';
+    // Outcome score cards (each arm's probability mapped to 1-20)
+    document.getElementById('score-treated-val').textContent = probToScore(probTreated) + ' /20';
+    document.getElementById('score-control-val').textContent = probToScore(probControl) + ' /20';
+    document.getElementById('card-treated').className = 'score-card ' + stateTreated;
+    document.getElementById('card-control').className = 'score-card ' + stateControl;
 
-    // Advantage banner
-    const diff = scoreTreated - scoreControl;
+    // Advantage banner — driven by the same +/-5% benefit threshold
     const banner = document.getElementById('advantage-banner');
-    if (diff > 0) {
-        banner.textContent = 'Aspirin advantage: +' + diff + ' points';
+    if (cate > threshold) {
+        banner.textContent = 'Aspirin favored: +' + (cate * 100).toFixed(1) + '% favorable-outcome probability';
         banner.className = 'advantage-banner adv-positive';
-    } else if (diff < 0) {
-        banner.textContent = 'No-aspirin advantage: +' + (-diff) + ' points';
+    } else if (cate < -threshold) {
+        banner.textContent = 'No aspirin favored: ' + (cate * 100).toFixed(1) + '% (aspirin worse)';
         banner.className = 'advantage-banner adv-negative';
     } else {
-        banner.textContent = 'No score difference between arms';
+        banner.textContent = 'No meaningful difference between arms (within \u00B15%)';
         banner.className = 'advantage-banner adv-neutral';
     }
 

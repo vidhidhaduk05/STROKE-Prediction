@@ -300,8 +300,9 @@ body {
   border: 2px solid;
 }
 
-.score-treated { border-color: #2f7d32; background: #eef6ee; }
-.score-control { border-color: #a0352c; background: #f9eeee; }
+.score-card.card-good    { border-color: #2f7d32; background: #eef6ee; }
+.score-card.card-bad     { border-color: #a0352c; background: #f9eeee; }
+.score-card.card-neutral { border-color: #c4c0b6; background: var(--paper); }
 
 .score-name {
   font-family: var(--font-sans);
@@ -311,8 +312,9 @@ body {
   letter-spacing: 0.08em;
 }
 
-.score-treated .score-name { color: #2f7d32; }
-.score-control .score-name { color: #a0352c; }
+.score-card.card-good    .score-name { color: #2f7d32; }
+.score-card.card-bad     .score-name { color: #a0352c; }
+.score-card.card-neutral .score-name { color: var(--ink-light); }
 
 .score-num {
   font-family: var(--font-head);
@@ -321,10 +323,19 @@ body {
   line-height: 1.1;
 }
 
-.score-treated .score-num { color: #2f7d32; }
-.score-control .score-num { color: #a0352c; }
+.score-card.card-good    .score-num { color: #2f7d32; }
+.score-card.card-bad     .score-num { color: #a0352c; }
+.score-card.card-neutral .score-num { color: var(--ink-light); }
 
 .score-num { font-variant-numeric: tabular-nums; }
+
+.score-caption {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin: -0.2rem 0 0.9rem;
+}
 
 .advantage-banner {
   margin: 1rem auto 0;

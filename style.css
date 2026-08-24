@@ -451,6 +451,104 @@ body {
   color: var(--ink-light);
 }
 
+/* ---- Results: Explainability ---- */
+.explain-note {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin: -0.2rem 0 1rem;
+}
+
+.explain-subhead {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin: 1.3rem 0 0.2rem;
+}
+
+.explain-desc {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  margin: 0 0 0.7rem;
+}
+
+.driver-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.28rem 0;
+}
+
+.driver-label {
+  flex: 0 0 42%;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--ink);
+  text-align: right;
+  line-height: 1.2;
+}
+
+.driver-track {
+  position: relative;
+  flex: 1;
+  height: 16px;
+  background: var(--paper-dark);
+  border-left: 1px solid var(--rule);
+}
+
+.driver-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+}
+
+.driver-bar.pos { background: #2f7d32; }
+.driver-bar.neg { background: #a0352c; }
+
+.driver-val {
+  flex: 0 0 3.4rem;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-val.pos { color: #2f7d32; }
+.driver-val.neg { color: #a0352c; }
+
+.explain-net {
+  margin-top: 0.8rem;
+  padding: 0.55rem 0.8rem;
+  background: var(--paper);
+  border: 1px solid var(--rule-light);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.explain-plain {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0.8rem 0 0;
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--accent);
+}
+
+.explain-foot {
+  margin-top: 1.4rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rule-light);
+  font-style: italic;
+}
+
 .rec-treat { border-left: 4px solid var(--ink); }
 .rec-control { border-left: 4px solid var(--accent); }
 .rec-neutral { border-left: 4px solid var(--rule-light); }

@@ -185,7 +185,7 @@ function probToScore(prob) {
     return Math.max(1, Math.min(20, Math.round(1 + prob * 19)));
 }
 
-function displayResults(probTreated, probControl) {
+function displayResults(probTreated, probControl, features) {
     const cate = probTreated - probControl;
     const benefitScore = computeBenefitScore(cate);
     const absDiff = Math.abs((probTreated - probControl) * 100);
@@ -249,8 +249,131 @@ function displayResults(probTreated, probControl) {
     document.getElementById('rec-text').textContent = rec.text;
     document.getElementById('rec-detail').textContent = rec.detail;
 
+    // Explainability (feature / interaction contributions)
+    if (features) displayExplainability(features, probControl, cate);
+
     // Scroll to results
     document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---- Explainability ----
+const FEATURE_LABELS = {
+    age_gt80: 'Age over 80',
+    male: 'Male sex',
+    afib: 'Atrial fibrillation',
+    sbp_gt180: 'SBP over 180 mmHg',
+    impaired_conscious: 'Impaired consciousness',
+    delay_gt6h: 'Delay over 6 hours',
+    tacs: 'Total anterior circulation stroke (TACS)',
+    deficit_ge3: '3 or more neurological deficits',
+    prior_aspirin: 'Prior aspirin use',
+    infarct_visible: 'Visible infarct on scan',
+    heparin_allocated: 'Heparin allocated',
+};
+
+function renderDriverBars(containerId, contribs) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    if (!contribs.length) {
+        container.innerHTML = '<p class="explain-desc">No contributing factors for this patient.</p>';
+        return;
+    }
+    const maxAbs = Math.max.apply(null, contribs.map(c => Math.abs(c.value)).concat([1e-6]));
+    contribs.forEach(c => {
+        const row = document.createElement('div');
+        row.className = 'driver-row';
+
+        const label = document.createElement('div');
+        label.className = 'driver-label';
+        label.textContent = c.label;
+
+        const track = document.createElement('div');
+        track.className = 'driver-track';
+        const bar = document.createElement('div');
+        const pct = (Math.abs(c.value) / maxAbs) * 50; // half-track = 50%
+        bar.className = 'driver-bar ' + (c.value >= 0 ? 'pos' : 'neg');
+        if (c.value >= 0) {
+            bar.style.left = '50%';
+            bar.style.width = pct + '%';
+        } else {
+            bar.style.width = pct + '%';
+            bar.style.left = (50 - pct) + '%';
+        }
+        track.appendChild(bar);
+
+        const val = document.createElement('div');
+        val.className = 'driver-val ' + (c.value >= 0 ? 'pos' : 'neg');
+        val.textContent = (c.value >= 0 ? '+' : '') + c.value.toFixed(3);
+
+        row.appendChild(label);
+        row.appendChild(track);
+        row.appendChild(val);
+        container.appendChild(row);
+    });
+}
+
+function displayExplainability(features, probControl, cate) {
+    const names = MODEL.feature_names;
+    const coefs = MODEL.coefficients;
+    const idx = {};
+    names.forEach((n, i) => { idx[n] = i; });
+
+    // --- Treatment-effect decomposition: base effect + active interactions ---
+    const treatContribs = [{
+        label: 'Aspirin base effect (all patients)',
+        value: coefs[idx['treatment']],
+    }];
+    names.forEach((n, i) => {
+        if (n.startsWith('treat_x_')) {
+            const base = n.replace('treat_x_', '');
+            if (features[base] === 1 && Math.abs(coefs[i]) > 1e-9) {
+                treatContribs.push({ label: 'Aspirin \u00D7 ' + FEATURE_LABELS[base], value: coefs[i] });
+            }
+        }
+    });
+    renderDriverBars('treat-drivers', treatContribs);
+
+    const netLogit = treatContribs.reduce((s, c) => s + c.value, 0);
+    const cateSign = cate >= 0 ? '+' : '';
+    document.getElementById('treat-net').innerHTML =
+        'Net treatment effect: <strong>' + (netLogit >= 0 ? '+' : '') + netLogit.toFixed(3) +
+        ' log-odds &nbsp;&rarr;&nbsp; ' + cateSign + (cate * 100).toFixed(2) + '% probability</strong>';
+
+    // --- Plain-language summary of the decision ---
+    const threshold = MODEL.recommendation_threshold;
+    const sorted = treatContribs.slice(1).sort((a, b) => a.value - b.value);
+    const biggestNeg = sorted.length ? sorted[0] : null;
+    const base = coefs[idx['treatment']];
+    let plain;
+    if (cate > threshold) {
+        plain = 'For this patient, aspirin\u2019s effect is net positive (+' + (cate * 100).toFixed(1) +
+            '%), so the model favours giving aspirin.';
+    } else if (cate < -threshold) {
+        plain = 'For this patient, aspirin\u2019s small base benefit (+' + base.toFixed(3) + ') is outweighed' +
+            (biggestNeg ? ' by the negative interaction with \u201C' + biggestNeg.label.replace('Aspirin \u00D7 ', '') +
+            '\u201D (' + biggestNeg.value.toFixed(3) + ')' : '') +
+            ', giving a net effect of ' + (cate * 100).toFixed(1) + '%. The model favours withholding aspirin.';
+    } else {
+        plain = 'Aspirin\u2019s base benefit (+' + base.toFixed(3) + ' log-odds) is ' +
+            (biggestNeg && biggestNeg.value < 0
+                ? 'offset by the negative interaction with \u201C' + biggestNeg.label.replace('Aspirin \u00D7 ', '') +
+                  '\u201D (' + biggestNeg.value.toFixed(3) + '), leaving a net effect of '
+                : 'not reinforced by any positive interaction, leaving a net effect of ') +
+            (cate * 100).toFixed(1) + '%. Because this lies within the \u00B1' + (threshold * 100).toFixed(0) +
+            '% threshold, there is no clear benefit either way \u2014 the decision rests on clinical judgement, ' +
+            'bleeding risk, and patient preference rather than this score.';
+    }
+    document.getElementById('treat-plain').textContent = plain;
+
+    // --- Outcome (baseline) drivers: intercept + active base features ---
+    const outContribs = [{ label: 'Baseline (intercept)', value: MODEL.intercept }];
+    Object.keys(FEATURE_LABELS).forEach(base => {
+        if (features[base] === 1 && idx[base] !== undefined && Math.abs(coefs[idx[base]]) > 1e-9) {
+            outContribs.push({ label: FEATURE_LABELS[base], value: coefs[idx[base]] });
+        }
+    });
+    outContribs.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+    renderDriverBars('outcome-drivers', outContribs.slice(0, 7));
 }
 
 // ---- Main calculation ----
@@ -270,5 +393,5 @@ function calculate() {
     const probTreated = predictProbability(vecTreated);
     const probControl = predictProbability(vecControl);
 
-    displayResults(probTreated, probControl);
+    displayResults(probTreated, probControl, features);
 }

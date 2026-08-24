@@ -194,6 +194,23 @@
             </div>
         </div>
 
+        <div class="tool-card">
+            <h2>Why This Recommendation?</h2>
+            <p class="explain-note">Because this is a logistic-regression model, every prediction decomposes <em>exactly</em> into additive contributions &mdash; there is no black box. The charts below show precisely which patient characteristics drive the treatment decision and the predicted outcome.</p>
+
+            <h3 class="explain-subhead">What tips the aspirin decision for this patient?</h3>
+            <p class="explain-desc">Each bar is one term in the treatment effect. Green bars push <em>toward</em> aspirin, red bars push <em>away</em>. They sum to the net effect, which becomes the probability difference (CATE) above.</p>
+            <div id="treat-drivers"></div>
+            <div class="explain-net" id="treat-net"></div>
+            <p class="explain-plain" id="treat-plain"></p>
+
+            <h3 class="explain-subhead">What drives the predicted outcome?</h3>
+            <p class="explain-desc">The strongest factors raising (green) or lowering (red) the chance of a favorable 6-month outcome, before any treatment effect. These set the baseline probabilities shown in the gauges.</p>
+            <div id="outcome-drivers"></div>
+
+            <p class="explain-note explain-foot">Bars show additive log-odds contributions (the native scale of logistic regression); the net treatment effect is also expressed as a probability difference. Aspirin&rsquo;s effect in the International Stroke Trial is modest, so for most patients the individualized effect falls within the &plusmn;5% &ldquo;no clear benefit&rdquo; zone &mdash; the honest result is usually <em>no strong recommendation either way</em>.</p>
+        </div>
+
         <div class="tool-card" id="rec-card">
             <div class="recommendation">
                 <h3>Clinical Recommendation</h3>
